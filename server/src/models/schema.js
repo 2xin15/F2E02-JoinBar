@@ -1,4 +1,4 @@
-const { pgTable, varchar, bigint, timestamp, integer, index, smallint } = require('drizzle-orm/pg-core');
+const { pgTable, varchar, bigint, timestamp, integer, index, smallint, serial, primaryKey  } = require('drizzle-orm/pg-core');
 
 const events = pgTable('events', {
   id: bigint('id', { mode: 'string' }).primaryKey(),
@@ -18,4 +18,18 @@ const events = pgTable('events', {
   hostUserIdx: index('idx_host_user').on(table.hostUser),
 }));
 
-module.exports = { events };
+const tags  = pgTable('tags', {
+  id: serial('id').primaryKey(),
+  name: varchar('name', { length: 50 }),
+});
+
+const eventTags  = pgTable('event_tags', {
+  eventId: bigint('event_id', { mode: 'string' }).notNull(),
+  tagId: integer('tag_id').notNull()
+}, (table) => ({
+  pk: primaryKey({ columns: [table.eventId, table.tagId] })
+}));
+
+
+
+module.exports = { events, tags, eventTags };
