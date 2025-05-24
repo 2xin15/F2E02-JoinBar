@@ -12,7 +12,7 @@ const events = pgTable('events', {
   price: integer('price'),
   hostUser: bigint('host_user', { mode: 'string' }).notNull(),
   createdAt: timestamp('created_at').notNull(),
-  modifyAt: timestamp('modify_at').notNull(),
+  modifyAt: timestamp('modify_at').notNull(), 
 }, (table) => ({
   hostUserIdx: index('idx_host_user').on(table.hostUser),
 }));
