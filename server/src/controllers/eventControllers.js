@@ -1,7 +1,7 @@
 const FlakeId = require('flake-idgen');
 const intformat = require('biguint-format');
 const db = require('../config/db');
-const { events } = require('../models/schema');
+const { events, eventTags, tags } = require('../models/schema');
 const { eq } = require('drizzle-orm');
 
 const flake = new FlakeId({ id: 1 });
@@ -24,12 +24,26 @@ const createEvent = async (req, res) => {
     createdAt: now,
     modifyAt: now,
   };
-
-  console.log('startDate:', req.body.startDate, typeof req.body.startDate);
-  console.log('startDate as Date:', new Date(req.body.startDate));
   
   try {
+    //新增活動
     await db.insert(events).values(newEvent);
+
+    //新增活動標籤
+    if( req.body.tags && req.body.tags.length > 0){
+      const tagsList = []
+
+      for (const tagId of req.body.tags) {
+        const tag = {
+          eventId: id,
+          tagId: tagId
+        }
+        tagsList.push(tag)
+      }
+
+      await db.insert(eventTags).values(tagsList)
+    }
+    
     res.status(201).json({ message: '活動已建立', event: newEvent });
   } catch (err) {
     console.error('建立活動時發生錯誤:', err);
@@ -49,7 +63,17 @@ const getEvent = async (req, res) => {
     if( !event ){
       return res.status(404).json({ message: '找不到活動'})
     }
-    return res.status(200).json(stringifyBigInts(event));
+
+    // 撈取活動標籤
+    const eventTag  = await db
+    .select({ tagId: eventTags.tagId })
+    .from(eventTags)
+    .where(eq(eventTags.eventId, eventId));
+
+    const tagIds = eventTag.map(item => Number(item.tagId));
+    const stringModel = stringifyBigInts(event)
+
+    res.status(200).json({stringModel, tagIds});
   }catch(err){
     console.log(err)
     
@@ -93,6 +117,27 @@ const updateEvent = async( req, res) => {
     .update(events)
     .set(updatedData)
     .where((eq(events.id, eventId)));
+
+    //活動標籤全刪再新增
+    if( req.body.tags && req.body.tags.length > 0){
+
+      await db
+      .delete(eventTags)
+      .where(eq(eventTags.eventId, eventId));
+
+
+      const tagsList = []
+
+      for (const tagId of req.body.tags) {
+        const tag = {
+          eventId: eventId,
+          tagId: tagId
+        }
+        tagsList.push(tag)
+      }
+
+      await db.insert(eventTags).values(tagsList)
+    }
 
     res.status(200).json({
       message: '活動已更新',

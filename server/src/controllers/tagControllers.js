@@ -1,5 +1,5 @@
 const db = require('../config/db');
-const { tags } = require('../models/schema');
+const { tags, eventTags } = require('../models/schema');
 const { eq } = require('drizzle-orm');
 
 const createTag = async (req, res) => {
@@ -36,69 +36,50 @@ const getTag = async (req, res) => {
   }
 }
 
-// const updateEvent = async( req, res) => {
-//   const eventId = req.params.id
+const getListTag = async (req, res) => {
 
-//   try{
-//     const [ event ] = await db
-//     .select()
-//     .from(events)
-//     .where(eq(events.id, eventId));
+  try{
+    const tagsAll = await db
+    .select()
+    .from(tags);
 
-//     if( !event ){
-//       return res.status(404).json({ message: '找不到活動'})
-//     }
-
-//     const updatedData = {
-//       name: req.body.name,
-//       barName: req.body.barName,
-//       location: req.body.location,
-//       startDate: new Date(req.body.startDate),
-//       endDate: new Date(req.body.endDate),
-//       maxPeople: req.body.maxPeople,
-//       imageUrl: req.body.imageUrl,
-//       price: req.body.price,
-//       hostUser: req.body.hostUser,
-//       modifyAt: new Date()
-//     };
+    return res.status(200).json(tagsAll);
+  }catch(err){
+    console.log(err)
     
-//     await db
-//     .update(events)
-//     .set(updatedData)
-//     .where((eq(events.id, eventId)));
+    return res.status(500).json({ message: '伺服器錯誤' });
+  }
+}
 
-//     res.status(200).json({
-//       message: '活動已更新',
-//       update: updatedData
-//     });
-//   }catch(err){
-//     console.log(`更新活動發生錯誤: ${err}`)
-//     return res.status(500).json({ message: '伺服器錯誤'})
-//   }
-// }
+const deleteTag  = async( req, res) => {
+  const tagId = req.params.id
 
-// const softDeleteEvent  = async( req, res) => {
-//   const eventId = req.params.id
+  try{
+    const [ tag ] = await db
+    .select()
+    .from(tags)
+    .where(eq(tags.id, tagId));
 
-//   try{
-//     const [ event ] = await db
-//     .select()
-//     .from(events)
-//     .where(eq(events.id, eventId));
+    if( !tag ){
+      return res.status(404).json({ message: '找不到標籤' });
+    };
 
-//     if( !event || event.status == 2 ){
-//       return res.status(404).json({ message: '找不到活動或已刪除' })
-//     };
+    //刪除標籤
+    await db
+    .delete(tags)
+    .where(eq(tags.id, tagId));
 
-//     await db.update(events)
-//     .set({ status : 2, modifyAt: new Date() })
-//     .where(eq(events.id, eventId));
-//     return res.status(200).json({ message: '活動已刪除'})
+    //刪除活動標籤
+    await db
+    .delete(eventTags)
+    .where(eq(eventTags.tagId, tagId));
 
-//   }catch(err){
-//     console.log(`無法刪除: ${err}`)
-//     return res.status(500).json({ message: '伺服器錯誤'})
-//   }
-// }
+    return res.status(200).json({ message: '標籤已刪除' });
 
-module.exports = { createTag, getTag };
+  }catch(err){
+    console.log(`無法刪除: ${err}`)
+    return res.status(500).json({ message: '伺服器錯誤'})
+  }
+}
+
+module.exports = { createTag, getTag, getListTag, deleteTag };
