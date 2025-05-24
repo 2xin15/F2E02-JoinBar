@@ -1,6 +1,6 @@
 const FlakeId = require('flake-idgen');
 const intformat = require('biguint-format');
-const db = require('../drizzle/drizzle');
+const db = require('../config/db');
 const { events } = require('../models/schema');
 
 const flake = new FlakeId({ id: 1 });
