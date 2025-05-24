@@ -1,4 +1,4 @@
-const { pgTable, varchar, bigint, timestamp, integer, index } = require('drizzle-orm/pg-core');
+const { pgTable, varchar, bigint, timestamp, integer, index, smallint } = require('drizzle-orm/pg-core');
 
 const events = pgTable('events', {
   id: bigint('id', { mode: 'string' }).primaryKey(),
@@ -13,6 +13,7 @@ const events = pgTable('events', {
   hostUser: bigint('host_user', { mode: 'string' }).notNull(),
   createdAt: timestamp('created_at').notNull(),
   modifyAt: timestamp('modify_at').notNull(), 
+  status: smallint('status').default(1).notNull(), //1: 正常，2: 刪除
 }, (table) => ({
   hostUserIdx: index('idx_host_user').on(table.hostUser),
 }));

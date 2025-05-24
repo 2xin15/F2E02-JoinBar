@@ -33,7 +33,7 @@ const createEvent = async (req, res) => {
     res.status(201).json({ message: '活動已建立', event: newEvent });
   } catch (err) {
     console.error('建立活動時發生錯誤:', err);
-    res.status(500).json({ message: '伺服器錯誤' });
+    return res.status(500).json({ message: '伺服器錯誤' });
   }
 };
 
@@ -99,10 +99,33 @@ const updateEvent = async( req, res) => {
       update: updatedData
     });
   }catch(err){
-    console.log(`更新活動發生錯誤:${err}`)
-    res.status(500).json({ message: '伺服器錯誤'})
-
+    console.log(`更新活動發生錯誤: ${err}`)
+    return res.status(500).json({ message: '伺服器錯誤'})
   }
 }
 
-module.exports = { createEvent, getEvent, updateEvent };
+const softDeleteEvent  = async( req, res) => {
+  const eventId = req.params.id
+
+  try{
+    const [ event ] = await db
+    .select()
+    .from(events)
+    .where(eq(events.id, eventId));
+
+    if( !event || event.status == 2 ){
+      return res.status(404).json({ message: '找不到活動或已刪除' })
+    };
+
+    await db.update(events)
+    .set({ status : 2, modifyAt: new Date() })
+    .where(eq(events.id, eventId));
+    return res.status(200).json({ message: '活動已刪除'})
+
+  }catch(err){
+    console.log(`無法刪除: ${err}`)
+    return res.status(500).json({ message: '伺服器錯誤'})
+  }
+}
+
+module.exports = { createEvent, getEvent, updateEvent, softDeleteEvent };
