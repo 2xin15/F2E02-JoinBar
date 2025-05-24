@@ -1,5 +1,25 @@
 {
+  "name": "server",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon index.js",
+    "generate": "drizzle-kit generate",
+    "migrate": "drizzle-kit migrate"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": "",
   "dependencies": {
-    "express": "^5.1.0"
+    "biguint-format": "^1.0.2",
+    "dotenv": "^16.5.0",
+    "express": "^5.1.0",
+    "flake-idgen": "^1.4.0",
+    "pg": "^8.16.0"
+  },
+  "devDependencies": {
+    "drizzle-kit": "^0.31.1",
+    "nodemon": "^3.1.10"
   }
 }
