@@ -1,65 +1,76 @@
 <template>
-  <section class="cart-container">
-    <h2 class="cart-title">🛒 購物車</h2>
+  <div class="cart-container">
+    <h2>購物車</h2>
 
-    <div class="cart-header">
-      <div>商品</div>
-      <div>單價</div>
-      <div>數量</div>
-      <div>小計</div>
-      <div>操作</div>
+    <!-- Loading 效果 -->
+    <div v-if="isLoading" class="loading-box">
+      <div class="spinner"></div>
+      <p>載入中，請稍候...</p>
     </div>
 
-    <div v-for="item in cartItems" :key="item.id" class="cart-row">
-      <div class="product">
-        <img
-          class="product-img"
-          :src="item.image || 'https://placehold.co/80x80?text=No+Image'"
-          alt="商品圖片"
-        />
-        <div class="product-info">
-          <p class="product-name">{{ item.name }}</p>
+    <!-- 購物車內容 -->
+    <div v-else>
+      <div class="cart-header">
+        <div>商品</div>
+        <div>單價</div>
+        <div>數量</div>
+        <div>小計</div>
+        <div>操作</div>
+      </div>
+
+      <div v-for="item in cartItems" :key="item.id" class="cart-row">
+        <div class="product">
+          <img class="product-img" :src="item.image || 'https://placehold.co/80x80?text=No+Image'" />
+          <div class="product-info">
+            <p class="product-name">{{ item.name }}</p>
+          </div>
+        </div>
+
+        <div class="price">${{ item.price }}</div>
+
+        <div class="qty-box">
+          <button @click="decreaseQty(item)">−</button>
+          <span>{{ item.quantity }}</span>
+          <button @click="increaseQty(item)">+</button>
+        </div>
+
+        <div class="subtotal">${{ calcSubtotal(item) }}</div>
+
+        <div class="actions">
+          <button @click="removeItem(item.id)">刪除</button>
         </div>
       </div>
 
-      <div class="price">${{ item.price }}</div>
-
-      <div class="qty-box">
-        <button @click="decreaseQty(item)">−</button>
-        <span>{{ item.quantity }}</span>
-        <button @click="increaseQty(item)">+</button>
-      </div>
-
-      <div class="subtotal">${{ calcSubtotal(item) }}</div>
-
-      <div class="actions">
-        <button class="remove-btn" @click="removeItem(item.id)">刪除</button>
+      <div class="total-bar">
+        <p class="total-label">
+          總金額：<strong>${{ totalPrice }}</strong>
+        </p>
+        <button class="checkout-btn">去買單</button>
       </div>
     </div>
-
-    <div class="total-bar">
-      <p class="total-label">總金額：<strong>${{ totalPrice }}</strong></p>
-      <button class="checkout-btn">去買單</button>
-    </div>
-  </section>
+  </div>
 </template>
 
 <script setup>
 import { useCartStore } from '@/stores/cartStore'
-import { onMounted, computed } from 'vue'
+import { ref, onMounted, computed } from 'vue'
+import { useRouter } from 'vue-router'
 
 const cart = useCartStore()
+const router = useRouter()
+const isLoading = ref(true)
 
 onMounted(() => {
-  cart.loadFromStorage()
+  setTimeout(() => {
+    cart.loadFromStorage()
+    isLoading.value = false
+  }, 600) // 可調整時間或改為等待 API
 })
 
 const cartItems = computed(() => cart.items)
-
 const increaseQty = (item) => cart.increase(item)
 const decreaseQty = (item) => cart.decrease(item)
 const removeItem = (id) => cart.removeItem(id)
-
 const calcSubtotal = (item) => (item.price * item.quantity).toFixed(0)
 
 const totalPrice = computed(() =>
@@ -68,62 +79,74 @@ const totalPrice = computed(() =>
 </script>
 
 <style scoped>
-body {
-  background-color: #f8f9fa;
-  font-family: "Segoe UI", "Noto Sans TC", sans-serif;
-  color: #333;
-}
-
 .cart-container {
-  max-width: 1240px;
+  max-width: 1280px;
   margin: 3rem auto;
-  padding: 2.5rem 3rem;
+  padding: 2.5rem;
   background-color: #fff;
-  border-radius: 12px;
-  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.04);
+  border-radius: 10px;
+  box-shadow: 0 0 16px rgba(0, 0, 0, 0.05);
+  font-size: 15px;
 }
 
-.cart-title {
-  font-size: 1.8rem;
-  font-weight: 700;
-  margin-bottom: 2rem;
+.loading-box {
+  text-align: center;
+  padding: 3rem 0;
+  color: #666;
 }
 
-.cart-header,
-.cart-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 1rem;
-  padding: 1rem 0;
+.spinner {
+  margin: 1rem auto;
+  width: 40px;
+  height: 40px;
+  border: 4px solid #eee;
+  border-top: 4px solid #f44;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .cart-header {
-  background-color: #f1f3f5;
+  display: flex;
+  padding: 1rem 0;
   font-weight: bold;
-  font-size: 15px;
-  color: #555;
   border-bottom: 1px solid #ddd;
 }
 
-.cart-header > div,
-.cart-row > div {
-  flex-basis: 18%;
+.cart-header > div {
+  flex: 1;
   text-align: center;
 }
 
-.cart-header > div:first-child,
-.cart-row > div:first-child {
-  flex-basis: 28%;
+.cart-header > div:first-child {
+  flex: 2;
+  text-align: left;
 }
 
 .cart-row {
+  display: flex;
+  align-items: center;
+  padding: 1rem 0;
   border-bottom: 1px solid #eee;
-  transition: background-color 0.2s;
 }
 
 .cart-row:hover {
   background-color: #fafafa;
+}
+
+.cart-row > div {
+  flex: 1;
+  text-align: center;
+}
+
+.cart-row > div:first-child {
+  flex: 2;
+  text-align: left;
 }
 
 .product {
@@ -136,78 +159,56 @@ body {
   width: 80px;
   height: 80px;
   object-fit: cover;
-  border-radius: 8px;
-  background-color: #e9ecef;
-  border: 1px solid #ddd;
-}
-
-.product-info {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
+  border-radius: 6px;
+  background-color: #f0f0f0;
 }
 
 .product-name {
-  font-weight: 600;
   font-size: 16px;
-  margin: 0;
-  line-height: 1.4;
-}
-
-.price,
-.subtotal {
   font-weight: 600;
-  font-size: 15px;
-  color: #222;
+  margin: 0;
 }
 
 .qty-box {
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
 }
 
 .qty-box button {
   width: 32px;
   height: 32px;
   border: 1px solid #bbb;
-  border-radius: 6px;
-  background-color: #fff;
+  border-radius: 4px;
+  background-color: white;
   font-size: 18px;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: background-color 0.2s;
 }
 
 .qty-box button:hover {
-  background-color: #dee2e6;
+  background-color: #eee;
 }
 
 .qty-box span {
-  width: 32px;
+  width: 36px;
   text-align: center;
   font-weight: 500;
-  font-size: 15px;
 }
 
-.actions {
-  display: flex;
-  justify-content: center;
-}
-
-.remove-btn {
-  height: 32px;
+.actions button {
   border: 1px solid #dc3545;
   color: #dc3545;
   background: white;
-  padding: 0 12px;
+  padding: 6px 12px;
   font-size: 13px;
-  border-radius: 6px;
+  border-radius: 4px;
   cursor: pointer;
   transition: all 0.2s;
 }
 
-.remove-btn:hover {
+.actions button:hover {
   background-color: #dc3545;
   color: white;
 }
@@ -216,27 +217,26 @@ body {
   display: flex;
   justify-content: flex-end;
   align-items: center;
-  gap: 1.5rem;
-  margin-top: 2.5rem;
-  padding-right: 0.5rem;
+  margin-top: 2rem;
+  gap: 1rem;
 }
 
 .total-label {
-  font-size: 1.25rem;
+  font-size: 1.2rem;
 }
 
 .checkout-btn {
   background-color: #f44;
   color: white;
   border: none;
-  padding: 0.7rem 1.6rem;
-  font-size: 15px;
-  border-radius: 6px;
+  padding: 0.6rem 1.5rem;
+  font-size: 14px;
+  border-radius: 4px;
   cursor: pointer;
-  transition: background-color 0.25s;
+  transition: background-color 0.2s;
 }
 
 .checkout-btn:hover {
-  background-color: #c62828;
+  background-color: #d32f2f;
 }
 </style>
