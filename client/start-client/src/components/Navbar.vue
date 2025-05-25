@@ -22,8 +22,8 @@
   justify-content: space-between;
   align-items: center;
   padding: 1rem 2rem;
-  background-color: #bbbbbb;
-  color: white;
+  background-color: white;
+
   height: 50px;
 }
 
@@ -39,7 +39,7 @@
 }
 
 .nav-links a {
-  color: white;
+  color: var(--color-black);
   text-decoration: none;
 }
 </style>
