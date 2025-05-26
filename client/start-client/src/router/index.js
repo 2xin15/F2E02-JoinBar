@@ -8,6 +8,7 @@ import Subscription from '../views/sub/Subscription.vue'
 import Member from '../views/member/Member.vue'
 import Cart from '../views/cart/Cart.vue'
 
+
 const routes = [
   { path: '/', component: Home },
   { path: '/map', component: Map },
