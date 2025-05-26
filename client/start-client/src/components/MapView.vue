@@ -11,27 +11,39 @@
       />
       <button @click="handleSearch"  class="btn search-bt"><b>🔍 搜尋</b></button>
       <ul v-if="suggestions.length" class="suggestions-list">
-        <li v-for="(s, i) in suggestions" :key="i" @click="selectSuggestion(s)">
-          🔍 {{ s.description }}
+        <li v-for="(suggestion, index) in suggestions" :key="index" @click="selectSuggestion(suggestion)">
+          🔍 {{ suggestion.description }}
         </li>
       </ul>
       </div>
-      <button @click="getCurrentLocation" class="place-now"><b>📍顯示我目前位置</b></button>
+      <button @click="getCurrentLocation" class="place-now"><b>📍 顯示我目前位置</b></button>
   </div>
+
+  <!-- loading -->
+  <div v-if="isSearching" class="loading">
+    <div class="loader"></div>
+    <p class="loading-message">Loading ...</p>
+  </div>
+
   <div ref="mapContainer" class="map-container"></div>
+  
 </template>
 
 <script setup>
 import { ref, onMounted } from 'vue'
+import debounce from 'lodash/debounce'
 
 const searchQuery = ref('')
 const suggestions = ref([])
 const mapContainer = ref(null)
 
+// 定義 loading 狀態
+const isSearching = ref(false)
+
 let map
 let markers = []
 let infoWindow
-let autocompleteService
+let autocompleteService = null
 let placesService
 let currentMarker
 
@@ -114,8 +126,8 @@ function requestGeolocationPermission() {
   )
 }
 
-
-function onInputChange() {
+// 搜尋 - 防抖機制
+const onInputChange= debounce(() =>{
   if (!autocompleteService || !searchQuery.value) {
     suggestions.value = []
     return
@@ -134,7 +146,7 @@ function onInputChange() {
       }
     }
   )
-}
+}, 300)
 
 function selectSuggestion(suggestion) {
   searchQuery.value = suggestion.description
@@ -151,14 +163,19 @@ function handleSearch() {
 }
 
 function searchPlaceByText(query) {
+  isSearching.value = true
   placesService.textSearch(
     {
       query,
       location: map.getCenter(),
       radius: 50000,
-      region: 'tw'
+      region: 'tw',
     },
     (results, status) => {
+      setTimeout(() => {
+        isSearching.value = false
+      }, 200) // 人為 delay 0.2 秒讓 loading 看得見
+
       if (status !== google.maps.places.PlacesServiceStatus.OK || !results.length) {
         alert('找不到地點')
         return
@@ -359,4 +376,44 @@ google.maps.event.addListenerOnce(map, 'idle', () => {
 .suggestions-list li:hover {
   background: #f0f0f0;
 }
+.loading{
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(255, 255, 255, 0.8); 
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+.loader {
+  width: 50px;
+  --b: 6px;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  padding: 1px;
+  background: conic-gradient(#0000 10%, #afb18c) content-box;
+  -webkit-mask:
+    repeating-conic-gradient(#0000 0deg, #000 1deg 20deg, #0000 21deg 36deg),
+    radial-gradient(farthest-side, #0000 calc(100% - var(--b) - 1px), #000 calc(100% - var(--b)));
+  -webkit-mask-composite: destination-in;
+          mask-composite: intersect;
+  animation: l4 1s infinite steps(10);
+}
+@keyframes l4 {
+  to {
+    transform: rotate(1turn);
+  }
+}
+.loading-message {
+  margin-top: 12px;
+  font-weight: bold;
+  font-size: 20px;
+  color: #333;
+}
+
+
 </style>
