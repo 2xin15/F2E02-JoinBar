@@ -1,26 +1,25 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import HomeView from '../views/HomeView.vue'
-import MapView from '../components/MapView.vue'
+
+import Home from '../views/home/Home.vue'
+import MapView_2 from '../views/map/MapView_2.vue'
+import Reviews from '../views/reviews/Reviews.vue'
+import Events from '../views/events/Events.vue'
+import Subscription from '../views/sub/Subscription.vue'
+import Member from '../views/member/Member.vue'
+
+const routes = [
+  { path: '/', component: Home },
+  { path: '/map', name: 'Map',component: MapView_2 },
+  { path: '/reviews', component: Reviews },
+  { path: '/events', component: Events },
+  { path: '/subscription', component: Subscription },
+  { path: '/member', component: Member },
+]
 
 const router = createRouter({
-  history: createWebHistory(import.meta.env.BASE_URL),
-  routes: [
-    {
-      path: '/',
-      name: 'home',
-      component: HomeView,
-    },
-    {
-      path: '/about',
-      name: 'about',
-      component: () => import('../views/AboutView.vue'),
-    },
-    {
-      path: '/map',
-      name: 'Map',
-      component: MapView
-    },
-  ],
+  history: createWebHistory(),
+  routes,
+
 })
 
 export default router
