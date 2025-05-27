@@ -1,61 +1,34 @@
 <script setup>
-import { ref } from 'vue';
-import axios from '@/api/axios'; // 根據後端設定待調整
+import { ref } from 'vue'
 import { defineEmits } from 'vue'
-import { defineProps } from 'vue'
-
-const props = defineProps({
-  eventId: String
-})
-
-const eventName = ref('');
-const eventLocation = ref('');
-const eventDate = ref('');
-const eventTime = ref('');
-const eventHashtags = ref('');
-
 const emit = defineEmits(['update', 'delete'])
 
-async function handleUpdate() {
-  const eventData = {
-    name: eventName.value,
-    location: eventLocation.value,
-    date: eventDate.value,
-    time: eventTime.value,
-    hashtags: eventHashtags.value,
-  };
+const eventName = ref('')
+const eventLocation = ref('')
+const eventDate = ref('')
+const eventTime = ref('')
+const eventHashtags = ref('')
 
-  try {
-    await axios.put(`/events/${props.eventId}`, eventData);
-    emit('update');
-  } catch (error) {
-    console.error('更新活動失敗：', error);
-  }
+function handleUpdate() {
+  emit('update')
 }
-
-async function handleDelete() {
-  try {
-    await axios.delete(`/events/${props.eventId}`);
-    emit('delete');
-  } catch (error) {
-    console.error('刪除活動失敗：', error);
-  }
+function handleDelete() {
+  emit('delete')
 }
-
+function handleCancel() {
+  emit('update')
+}
 </script>
 
 <template>
   <section class="event-form" id="edit-event">
+
     <div class="form-header">編輯中</div>
-
     <div class="form-container">
-
       <div class="form-image-upload">
         <div class="event-image-placeholder">點擊更換活動圖</div>
       </div>
-
       <div class="form-layout">
-      
         <div class="form-left">
           <div class="form-row">
             <label for="event-name">活動名稱</label>
@@ -73,54 +46,45 @@ async function handleDelete() {
             <label for="event-time">活動時間</label>
             <input type="time" id="event-time" v-model="eventTime"/>
           </div>
-
           <div class="form-row">
-            <label for="event-description">特色標籤</label>
-            <input type="text" id="event-hastags" v-model="eventHashtags" />
+            <label for="event-hashtags">特色標籤</label>
+            <input type="text" id="event-hashtags" v-model="eventHashtags" />
           </div>
         </div>
-
-        <div class="form-right">
-          <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d7229.173346458024!2d121.51834929155645!3d25.048097281079027!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3442a971b0535025%3A0x6dd059bb00faacf6!2z5Y-w5YyX5Zac5L6G55m75aSn6aOv5bqX77yN5aSn5buz6YWS5ZCnIFRoZSBMb3VuZ2U!5e0!3m2!1szh-TW!2stw!4v1747884507892!5m2!1szh-TW!2stw" width="100%" height="100%" style="border:0;" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
-        </div>
-
+        <div class="form-right"></div>
       </div>
-      
-      <div class="form-submit">
+      <div class="form-bottom">
         <button type="button" class="btn-delete" @click="handleDelete">刪除活動</button>
-        <button type="button" class="btn-cancle" @click="$emit('update')">取消修改</button>
+        <button type="button" class="btn-cancle" @click="handleCancel">取消修改</button>
         <button type="button" class="btn-confirm" @click="handleUpdate">完成發佈</button>
       </div>
-
     </div>
   </section>
-
 </template>
 
 <style scoped>
 
-
+.event-form{
+  z-index: 99;
+}
 
 .form-header{
-  display: flex-box;
   width: 140px;
-  height: 50px;
-  justify-content: center;
+  height: 45px;
   text-align: center;
   align-items: center;
   margin: 0 auto;
-  font-size: 1rem;
+  font-size: 18px;
   padding-top: 10px;
   margin-bottom: -10px;
   border-radius: 10px;
-  color: white;
+  color: #fff;
   background-color: var(--color-primary-orange);
 }
 
 .form-container {
   margin: 0 auto;
-  max-width: 800px;
-  /* padding: 2rem; */
+  width: 700px;
   border-radius: 20px;
   background-color: #ccc;
 }
@@ -133,33 +97,38 @@ async function handleDelete() {
   height: 250px;
   font-size: 20px;
   color:#b1b1b1;
-  margin-bottom: 20px;
   border-radius: 20px 20px 0 0;
   background-color: #e6e6e6;
 }
 
 .form-layout{
-  padding: 0 2rem;
+  padding: 20px;
   display: grid;
   grid-template-columns: 1.5fr 1fr ; 
   align-items: center;
-  gap: 1rem;
-  margin-bottom: 1rem;
+  gap: 20px;
 }
 
 
 .form-left {
+  font-size: 20px;
+}
+
+.form-right {
+  display: flex;
   justify-content: center;
   align-items: center;
-  font-size: 20px;
+  width: 100%;
+  height: 100%;
+  border-radius: 10px;
+  background-color: var(--color-black);
 }
 
 .form-row {
   display: grid;
   grid-template-columns: 100px 1fr; 
   align-items: center;
-  gap: 0.5rem;
-  margin: 0.5rem 0;
+  margin: 10px 0;
 }
 
 .form-row label {
@@ -174,23 +143,22 @@ async function handleDelete() {
   border-radius: 15px;
 }
 
-.form-submit{
+.form-bottom{
   padding: 0 50px;
   display: grid;
   grid-template-columns: 1fr 1fr 1fr ;
-  padding-bottom: 1rem;
+  padding-bottom: 20px;
 }
 
-.form-submit button {
+.form-bottom button {
   display: block;
   margin: 0 auto;
-  padding: 0.5rem 1rem;
-  width: 200px;
+  width: 180px;
   height: 45px;
   font-size: 20px;
   color: white;
   border: none;
-  border-radius: 2rem;
+  border-radius: 20px;
   cursor: pointer;
 }
 
