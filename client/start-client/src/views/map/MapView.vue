@@ -1,10 +1,5 @@
 <!-- src/views/Map.vue -->
 <template>
-  <div class="page">
-    <h1>酒吧地圖</h1>
-    <p>探索附近的酒吧位置與資訊。</p>
-  </div>
-
   <div class="search-panel">
     <div class="input-group">
       <input
@@ -93,6 +88,9 @@ function initMap(center = defaultCenter) {
   map = new google.maps.Map(mapContainer.value, {
     center,
     zoom: 8,
+
+    // 允許直接滾輪縮放、不顯示提示
+    gestureHandling: 'greedy',
     restriction: {
       latLngBounds: {
         north: 25.5,
@@ -301,16 +299,12 @@ google.maps.event.addListenerOnce(map, 'idle', () => {
 </script>
 
 <style scoped>
-.page {
-  padding: 2rem;
-}
-
 .search-panel{
   display: flex;
   align-items: flex-start;
   gap: 10px;
   position: absolute;
-  top: 30px;
+  top: 120px;
   left: 30px;
   background-color: rgb(255, 255, 255,0.5);
   z-index: 10;

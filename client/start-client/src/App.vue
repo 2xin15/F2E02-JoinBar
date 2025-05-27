@@ -1,13 +1,11 @@
 <script setup>
 import Navbar from './components/Navbar.vue'
-import MapView from './views/map/MapView_2.vue'
 </script>
 
 <template>
   <div>
     <Navbar />
     <router-view />
-    <MapView />
   </div>
 </template>
 

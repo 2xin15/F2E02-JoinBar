@@ -24,7 +24,7 @@
   padding: 1rem 2rem;
   background-color: #bbbbbb;
   color: white;
-  height: 50px;
+  height: 100px;
 }
 
 .logo img {
