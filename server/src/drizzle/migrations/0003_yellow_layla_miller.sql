@@ -1,0 +1,1 @@
+ALTER TABLE "events" ALTER COLUMN "host_user" SET DATA TYPE integer;
