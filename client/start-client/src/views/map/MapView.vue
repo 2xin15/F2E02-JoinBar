@@ -1,4 +1,3 @@
-<!-- src/views/Map.vue -->
 <template>
   <div class="search-panel">
     <div class="input-group">
@@ -47,7 +46,7 @@ let autocompleteService = null
 let placesService
 let currentMarker
 
-const defaultCenter = { lat: 23.553118, lng: 121.0211024 }
+const defaultCenter = { lat: 25.0375, lng: 121.5637 }
 
 // 新增：動態載入 Google Maps 相關 script
 function loadGoogleMapsScript() {
@@ -87,7 +86,7 @@ onMounted(async () => {
 function initMap(center = defaultCenter) {
   map = new google.maps.Map(mapContainer.value, {
     center,
-    zoom: 8,
+    zoom: 12,
 
     // 允許直接滾輪縮放、不顯示提示
     gestureHandling: 'greedy',
@@ -106,11 +105,78 @@ function initMap(center = defaultCenter) {
     streetViewControl: false,
     rotateControl: false,
     fullscreenControl: false,
+
+    // 把地圖上預設的商家、餐廳、學校、醫院等圖示都隱藏掉
+    styles: [
+      {
+        featureType: 'poi', // poi = point of interest
+        elementType: 'labels',
+        stylers: [{ visibility: 'off' }]
+      }
+    ],
   })
 
   infoWindow = new google.maps.InfoWindow()
   placesService = new google.maps.places.PlacesService(map)
   autocompleteService = new google.maps.places.AutocompleteService()
+  
+  google.maps.event.addListenerOnce(map, 'idle', () => {
+    searchNearbyBars(map.getCenter())
+  })
+}
+
+  // 搜尋附近的「酒吧」並加上 marker
+  function searchNearbyBars(location) {
+  if (!(location instanceof google.maps.LatLng)) {
+    location = new google.maps.LatLng(location.lat, location.lng)
+  }
+
+  clearMarkers()
+
+  const request = {
+    location,
+    radius: 1500, 
+    type: ['bar']
+  }
+
+  placesService.nearbySearch(request, (results, status) => {
+    if (status === google.maps.places.PlacesServiceStatus.OK && results.length > 0) {
+      const bounds = new google.maps.LatLngBounds()
+      results.forEach(place => {
+        if (!place.geometry || !place.geometry.location) return
+
+        const marker = new google.maps.Marker({
+          map,
+          position: place.geometry.location,
+          title: place.name
+        })
+
+        marker.addListener('click', () => {
+          placesService.getDetails({
+            placeId: place.place_id,
+            fields: ['name', 'formatted_address', 'rating', 'website']
+          }, (details, status) => {
+            if (status === google.maps.places.PlacesServiceStatus.OK) {
+              infoWindow.setContent(`
+                <strong>${details.name}</strong><br/>
+                地址：${details.formatted_address}<br/>
+                評分：${details.rating}<br/>
+                ${details.website ? `<a href="${details.website}" target="_blank">網站</a>` : ''}
+              `)
+              infoWindow.open(map, marker)
+            }
+          })
+        })
+
+        markers.push(marker)
+        bounds.extend(place.geometry.location)
+      })
+
+      map.fitBounds(bounds)
+    } else {
+      console.warn('附近找不到酒吧，狀態：', status)
+    }
+  })
 }
 
 function requestGeolocationPermission() {
@@ -139,7 +205,9 @@ const onInputChange= debounce(() =>{
   autocompleteService.getPlacePredictions(
     {
       input: searchQuery.value,
-      componentRestrictions: { country: 'tw' }
+      componentRestrictions: { country: 'tw' },
+      location: map.getCenter(), 
+      radius: 18000
     },
     (predictions, status) => {
       if (status === google.maps.places.PlacesServiceStatus.OK && predictions) {
@@ -246,8 +314,8 @@ function getCurrentLocation() {
       map.setCenter(location)
       map.setZoom(15)
 
-      // 等地圖 idle 再做平移
-google.maps.event.addListenerOnce(map, 'idle', () => {
+  // 等地圖 idle 再做平移
+  google.maps.event.addListenerOnce(map, 'idle', () => {
   const projection = map.getProjection()
   const scale = Math.pow(2, map.getZoom())
   const worldCoordinateCenter = projection.fromLatLngToPoint(location)
@@ -306,7 +374,7 @@ google.maps.event.addListenerOnce(map, 'idle', () => {
   position: absolute;
   top: 120px;
   left: 30px;
-  background-color: rgb(255, 255, 255,0.5);
+  background-color: rgba(255, 255, 255,0.5);
   z-index: 10;
   padding: 10px;
   border-radius: 8px;
