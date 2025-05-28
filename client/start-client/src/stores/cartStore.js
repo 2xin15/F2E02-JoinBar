@@ -47,7 +47,12 @@ export const useCartStore = defineStore('cart', () => {
 
   const addItem = (item) => {
     const existing = items.value.find((i) => i.id === item.id)
-    existing ? (existing.quantity += item.quantity) : items.value.push({ ...item })
+    const quantityToAdd = item.quantity ?? 1
+    if (existing) {
+      existing.quantity += quantityToAdd
+    } else {
+      items.value.push({ ...item, quantity: quantityToAdd })
+    }
   }
 
   const removeItem = (id) => (items.value = items.value.filter((i) => i.id !== id))
