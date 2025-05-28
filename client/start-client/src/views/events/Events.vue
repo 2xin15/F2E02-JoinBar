@@ -3,6 +3,7 @@ import FormModal from './FormModal.vue'
 </script>
 
 <template>
+
   <div class="page">
     <h1>酒吧活動</h1>
     <p>探索附近的酒吧活動。</p>
