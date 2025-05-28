@@ -1,13 +1,14 @@
 <script setup>
 import { ref } from 'vue'
 import { defineEmits } from 'vue'
+import Hashtag from './Hashtag.vue'
 const emit = defineEmits(['update', 'delete'])
 
 const eventName = ref('')
 const eventLocation = ref('')
 const eventDate = ref('')
 const eventTime = ref('')
-const eventHashtags = ref('')
+const eventHashtags = ref([])
 
 function handleUpdate() {
   emit('update')
@@ -46,10 +47,7 @@ function handleCancel() {
             <label for="event-time">活動時間</label>
             <input type="time" id="event-time" v-model="eventTime"/>
           </div>
-          <div class="form-row">
-            <label for="event-hashtags">特色標籤</label>
-            <input type="text" id="event-hashtags" v-model="eventHashtags" />
-          </div>
+          <Hashtag v-model="eventHashtags" />
         </div>
         <div class="form-right"></div>
       </div>
