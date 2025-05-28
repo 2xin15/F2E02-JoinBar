@@ -48,22 +48,22 @@ function handleDelete() {
     <transition name="popup">
 
       <div v-if="showForm" class="popup-overlay" @click="overlayClick">
-        <button class="popup-close-btn" @click="closeForm">×</button>
+        <div class="modal-content">
+          <button class="popup-close-btn" @click="closeForm">×</button>
 
-        <FormCreate
-          v-if="formStatus === 'create'" 
-          class="modal-content" 
-          @click.stop
-          @submit="handleCreate"
-        />
+          <FormCreate
+            v-if="formStatus === 'create'" 
+            @click.stop
+            @submit="handleCreate"
+          />
 
-        <FormUpdate 
-          v-if="formStatus === 'update'" 
-          class="modal-content"
-          @click.stop
-          @update="handleUpdate"
-          @delete="handleDelete"
-        />
+          <FormUpdate 
+            v-if="formStatus === 'update'" 
+            @click.stop
+            @update="handleUpdate"
+            @delete="handleDelete"
+          />
+        </div>
       </div>
     </transition>
   </div>
@@ -106,6 +106,7 @@ function handleDelete() {
 }
 
 .modal-content {
+  position: relative;
   border-radius: 20px;
   padding: 0;
   max-height: 90vh;
@@ -115,12 +116,12 @@ function handleDelete() {
 
 .popup-close-btn {
   position: absolute;
-  top: 30px;
-  right: 40px;
-  font-size: 2rem;
+  top: 60px;
+  right: 15px;
+  font-size: 30px;
   background: none;
   border: none;
-  color: #fff;
+  color: #000000;
   cursor: pointer;
   z-index: 101;
   transition: color 0.2s;
