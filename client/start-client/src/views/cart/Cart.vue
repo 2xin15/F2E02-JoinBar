@@ -20,7 +20,7 @@
 
       <div v-for="item in cartItems" :key="item.id" class="cart-row">
         <div class="product">
-          <img class="product-img" :src="item.image || 'https://placehold.co/80x80?text=No+Image'" />
+          <img class="product-img" :src="item.image || 'https://placehold.co/80x80?text=No+Image'" alt="活動圖片" />
           <div class="product-info">
             <p class="product-name">{{ item.name }}</p>
           </div>
