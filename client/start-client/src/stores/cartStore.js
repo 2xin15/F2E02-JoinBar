@@ -10,7 +10,7 @@ export const useCartStore = defineStore('cart', () => {
       name: '精釀啤酒｜琥珀艾爾',
       price: 120,
       spec: '330ml 瓶裝',
-      quantity: 2,
+      quantity: 1,
       image: 'https://placehold.co/80x80?text=Beer',
     },
     {
@@ -47,11 +47,8 @@ export const useCartStore = defineStore('cart', () => {
 
   const addItem = (item) => {
     const existing = items.value.find((i) => i.id === item.id)
-    const quantityToAdd = item.quantity ?? 1
-    if (existing) {
-      existing.quantity += quantityToAdd
-    } else {
-      items.value.push({ ...item, quantity: quantityToAdd })
+    if (!existing) {
+      items.value.push({ ...item, quantity: 1 })
     }
   }
 
@@ -61,11 +58,8 @@ export const useCartStore = defineStore('cart', () => {
       items.value.splice(index, 1)
     }
   }
-  const increase = (item) => item.quantity++
-  const decrease = (item) => {
-    if (item.quantity > 1) item.quantity--
-  }
+
   const clearCart = () => (items.value = [])
 
-  return { items, loadFromStorage, addItem, removeItem, increase, decrease, clearCart }
+  return { items, loadFromStorage, addItem, removeItem, clearCart }
 })

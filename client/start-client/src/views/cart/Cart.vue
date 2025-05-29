@@ -29,9 +29,7 @@
         <div class="price">${{ item.price }}</div>
 
         <div class="qty-box">
-          <button @click="decreaseQty(item)">−</button>
           <span>{{ item.quantity }}</span>
-          <button @click="increaseQty(item)">+</button>
         </div>
 
         <div class="subtotal">${{ calcSubtotal(item) }}</div>
@@ -68,8 +66,6 @@ onMounted(() => {
 })
 
 const cartItems = computed(() => cart.items)
-const increaseQty = (item) => cart.increase(item)
-const decreaseQty = (item) => cart.decrease(item)
 const removeItem = (id) => cart.removeItem(id)
 const calcSubtotal = (item) => (item.price * item.quantity).toFixed(0)
 
