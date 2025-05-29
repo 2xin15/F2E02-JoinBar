@@ -1,7 +1,7 @@
 const { pgTable, varchar, bigint, timestamp, integer, index, smallint, serial, primaryKey  } = require('drizzle-orm/pg-core');
 
 const events = pgTable('events', {
-  id: bigint('id').primaryKey(),
+  id: bigint('id', { mode: 'string' }).primaryKey(),
   name: varchar('name', { length: 50 }).notNull(),
   barName: varchar('bar_name', { length: 100 }).notNull(),
   location: varchar('location', { length: 100 }).notNull(),
@@ -10,7 +10,7 @@ const events = pgTable('events', {
   maxPeople: integer('max_people'),
   imageUrl: varchar('image_url', { length: 255 }),
   price: integer('price'),
-  hostUser: integer('host_user').notNull().references('users', 'id', { onDelete: 'cascade' }),
+  hostUser: integer('host_user').notNull(),
   createdAt: timestamp('created_at').notNull(),
   modifyAt: timestamp('modify_at').notNull(), 
   status: smallint('status').default(1).notNull(), //1: 正常，2: 刪除
@@ -24,8 +24,8 @@ const tags  = pgTable('tags', {
 });
 
 const eventTags  = pgTable('event_tags', {
-  eventId: bigint('event_id').notNull().references('events', 'id', { onDelete: 'cascade' }),
-  tagId: integer('tag_id').notNull().references('tags', 'id', { onDelete: 'cascade' }),
+  eventId: bigint('event_id', { mode: 'string' }).notNull().references(() => events.id, {onDelete: 'cascade'}),
+  tagId: integer('tag_id').notNull().references(() => tags.id, {onDelete: 'cascade'}),
 }, (table) => ({
   pk: primaryKey({ columns: [table.eventId, table.tagId] })
 }));
