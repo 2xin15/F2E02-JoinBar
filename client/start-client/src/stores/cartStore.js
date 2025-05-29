@@ -55,7 +55,12 @@ export const useCartStore = defineStore('cart', () => {
     }
   }
 
-  const removeItem = (id) => (items.value = items.value.filter((i) => i.id !== id))
+  const removeItem = (id) => {
+    const index = items.value.findIndex((i) => i.id === id)
+    if (index !== -1) {
+      items.value.splice(index, 1)
+    }
+  }
   const increase = (item) => item.quantity++
   const decrease = (item) => {
     if (item.quantity > 1) item.quantity--
