@@ -56,7 +56,7 @@ const userBarCollectionTable = pgTable("user_bar_collection", {
 
 const userBarFoldersTable = pgTable("user_bar_folders", {
   id: serial().primaryKey(),
-  userId: integer().references(() => usersTable.id, { onDelete: "cascade" }),
+  userId: integer("user_id").references(() => usersTable.id, { onDelete: "cascade" }),
   folderName: varchar("folder_name", { length: 50 }),
   createdAt: timestamp("created_at").defaultNow(),
 });
