@@ -4,23 +4,23 @@
       <input
         type="text"
         id="searchInput" 
-        class="search-input"
+        class="input search-input"
         v-model="searchQuery"
         placeholder="輸入地點名稱"
         @input="onInputChange"
       />
-      <button @click="handleSearch"  class="btn search-bt"><b>🔍 搜尋</b></button>
+      <button @click="handleSearch"  class="btn bg-[#decdd5] hover:bg-[#860914] text-white rounded-r-lg font-normal search-bt">🔍 搜尋</button>
       <ul v-if="suggestions.length" class="suggestions-list">
         <li v-for="(suggestion, index) in suggestions" :key="index" @click="selectSuggestion(suggestion)">
           🔍 {{ suggestion.description }}
         </li>
       </ul>
-      </div>
-      <button @click="getCurrentLocation" class="place-now"><b>📍 顯示我目前位置</b></button>
+    </div>
+      <button @click="getCurrentLocation" class="btn font-normal place-now">📍 顯示我目前位置</button>
   </div>
 
   <!-- loading -->
-  <div v-if="isSearching" class="loading">
+  <div v-if="isSearching" class="custom-loading">
     <div class="loader"></div>
     <p class="loading-message">Loading ...</p>
   </div>
@@ -76,14 +76,28 @@ function loadGoogleMapsScript() {
 onMounted(async () => {
   try {
     await loadGoogleMapsScript()
-    initMap()
-    requestGeolocationPermission()
+
+    navigator.geolocation.getCurrentPosition(
+
+    // 如果成功，使用使用者位置；失敗就 fallback 用預設的 defaultCenter
+      (position) => {
+        const userLocation = {
+          lat: position.coords.latitude,
+          lng: position.coords.longitude
+        }
+        initMap(userLocation)
+      },
+      (error) => {
+        console.warn('定位失敗或用戶不同意存取定位，使用預設位置', error)
+        initMap(defaultCenter)
+      }
+    )
   } catch (err) {
     console.error('地圖載入失敗：', err)
   }
 })
 
-function initMap(center = defaultCenter) {
+function initMap(center, shouldGetCurrent = false) {
   map = new google.maps.Map(mapContainer.value, {
     center,
     zoom: 12,
@@ -96,7 +110,7 @@ function initMap(center = defaultCenter) {
         south: 21.5,
         east: 122.2,
         west: 119.3
-    },
+      },
       strictBounds: false
     },
     mapTypeControl: false,
@@ -106,30 +120,35 @@ function initMap(center = defaultCenter) {
     rotateControl: false,
     fullscreenControl: false,
 
-    // 把地圖上預設的商家、餐廳、學校、醫院等圖示都隱藏掉
+    // 把地圖上預設的商家、餐廳、學校、醫院等圖示 (poi, Point of Interest) 都隱藏掉
     styles: [
       {
-        featureType: 'poi', // poi = point of interest
+        featureType: 'poi',
         elementType: 'labels',
         stylers: [{ visibility: 'off' }]
       }
-    ],
+    ]
   })
 
   infoWindow = new google.maps.InfoWindow()
   placesService = new google.maps.places.PlacesService(map)
   autocompleteService = new google.maps.places.AutocompleteService()
-  
-  google.maps.event.addListenerOnce(map, 'idle', () => {
-    searchNearbyBars(map.getCenter())
-  })
+
+  if (shouldGetCurrent) {
+    getCurrentLocation()
+  } else {
+    searchNearbyBars(center)
+  }
 }
 
   // 搜尋附近的「酒吧」並加上 marker
   function searchNearbyBars(location) {
-  if (!(location instanceof google.maps.LatLng)) {
-    location = new google.maps.LatLng(location.lat, location.lng)
-  }
+    if (!location || typeof location.lat !== 'number' || typeof location.lng !== 'number') {
+      console.error('searchNearbyBars: 無效的位置', location)
+      return
+    }
+
+  const latLng = new google.maps.LatLng(location.lat, location.lng)
 
   clearMarkers()
 
@@ -182,6 +201,7 @@ function initMap(center = defaultCenter) {
 function requestGeolocationPermission() {
   if (!navigator.geolocation) {
     console.warn('瀏覽器不支援地理位置存取')
+    searchNearbyBars(defaultCenter)
     return
   }
 
@@ -299,6 +319,7 @@ function clearMarkers() {
 }
 
 function getCurrentLocation() {
+  console.log('Getting current location...')
   if (!navigator.geolocation) {
     alert('你的瀏覽器不支援定位功能')
     return
@@ -314,56 +335,59 @@ function getCurrentLocation() {
       map.setCenter(location)
       map.setZoom(15)
 
-  // 等地圖 idle 再做平移
-  google.maps.event.addListenerOnce(map, 'idle', () => {
-  const projection = map.getProjection()
-  const scale = Math.pow(2, map.getZoom())
-  const worldCoordinateCenter = projection.fromLatLngToPoint(location)
-  const pixelOffset = { x: 80 / scale, y: 0 }
-
-  const newCenter = new google.maps.Point(
-    worldCoordinateCenter.x - pixelOffset.x,
-    worldCoordinateCenter.y + pixelOffset.y
-  )
-  const shiftedLatLng = projection.fromPointToLatLng(newCenter)
-  map.setCenter(shiftedLatLng)
-})
+      // 加入 marker
       if (!currentMarker) {
         currentMarker = new google.maps.Marker({
           map,
           position: location,
         })
+          currentMarker.addListener('click', () => {
+          showCurrentLocationInfo(location)
+        })
       } else {
         currentMarker.setPosition(location)
       }
+  
+  function showCurrentLocationInfo(location) {
+  const geocoder = new google.maps.Geocoder()
+  geocoder.geocode({ location }, (results, status) => {
+    if (status === 'OK' && results[0]) {
+      const address = results[0].formatted_address
+      infoWindow.setContent(`<strong>你現在的位置</strong><br/>${address}`)
+    } else {
+      infoWindow.setContent(`<strong>你現在的位置</strong><br/>（無法取得地址資訊）`)
+    }
+    infoWindow.open(map, currentMarker)
+  })
+}
 
-       // 🧭 使用 Geocoder 將座標轉換為地址
-      const geocoder = new google.maps.Geocoder()
-      geocoder.geocode({ location }, (results, status) => {
-        if (status === 'OK' && results[0]) {
-          const address = results[0].formatted_address
-          infoWindow.setContent(`<strong>你現在的位置</strong><br/>${address}`)
-        } else {
-          infoWindow.setContent(`<strong>你現在的位置</strong><br/>（無法取得地址資訊）`)
-        }
-        infoWindow.open(map, currentMarker)
-      })
+      // // 顯示 InfoWindow 地址
+      // const geocoder = new google.maps.Geocoder()
+      // geocoder.geocode({ location }, (results, status) => {
+      //   if (status === 'OK' && results[0]) {
+      //     const address = results[0].formatted_address
+      //     infoWindow.setContent(`<strong>你現在的位置</strong><br/>${address}`)
+      //   } else {
+      //     infoWindow.setContent(`<strong>你現在的位置</strong><br/>（無法取得地址資訊）`)
+      //   }
+      //   infoWindow.open(map, currentMarker)
+      // })
+
+      // 搜尋附近酒吧
+      searchNearbyBars(location)
     },
     (error) => {
-      if (error.code === error.PERMISSION_DENIED) {
-        alert('你未授權網頁存取位置，請重新設定成允許存取。')
-      } else {
-        alert('無法取得你的位置，錯誤代碼：' + error.code)
-      }
+      alert('無法取得你的位置，錯誤代碼：' + error.code)
       console.error(error)
     },
     {
-      enableHighAccuracy: true,  
+      enableHighAccuracy: true,
       timeout: 10000,
       maximumAge: 0
     }
   )
 }
+
 </script>
 
 <style scoped>
@@ -405,7 +429,7 @@ function getCurrentLocation() {
   background-color: #decdd5;
   color: #ffffff;
   padding: 8px;
-  margin: 10px 0 5px 10px;
+  margin: 10px 0 5px 0px;
   border: 0px;
   cursor: pointer;
 }
@@ -447,7 +471,7 @@ function getCurrentLocation() {
 .suggestions-list li:hover {
   background: #f0f0f0;
 }
-.loading{
+.custom-loading{
   position: fixed;
   top: 0;
   left: 0;
