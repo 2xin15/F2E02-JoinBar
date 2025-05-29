@@ -83,8 +83,8 @@ const totalPrice = computed(() =>
 <style scoped>
 .cart-container {
   max-width: 1280px;
-  margin: 3rem auto;
-  padding: 2.5rem;
+  margin: 48px auto;
+  padding: 40px;
   background-color: #fff;
   border-radius: 10px;
   box-shadow: 0 0 16px rgba(0, 0, 0, 0.05);
@@ -93,12 +93,12 @@ const totalPrice = computed(() =>
 
 .loading-box {
   text-align: center;
-  padding: 3rem 0;
+  padding: 48px 0;
   color: #666;
 }
 
 .spinner {
-  margin: 1rem auto;
+  margin: 16px auto;
   width: 40px;
   height: 40px;
   border: 4px solid #eee;
@@ -115,7 +115,7 @@ const totalPrice = computed(() =>
 
 .cart-header {
   display: flex;
-  padding: 1rem 0;
+  padding: 16px 0;
   font-weight: bold;
   border-bottom: 1px solid #ddd;
 }
@@ -133,7 +133,7 @@ const totalPrice = computed(() =>
 .cart-row {
   display: flex;
   align-items: center;
-  padding: 1rem 0;
+  padding: 16px 0;
   border-bottom: 1px solid #eee;
 }
 
@@ -154,7 +154,7 @@ const totalPrice = computed(() =>
 .product {
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: 16px;
 }
 
 .product-img {
@@ -219,19 +219,19 @@ const totalPrice = computed(() =>
   display: flex;
   justify-content: flex-end;
   align-items: center;
-  margin-top: 2rem;
-  gap: 1rem;
+  margin-top: 32px;
+  gap: 16px;
 }
 
 .total-label {
-  font-size: 1.2rem;
+  font-size: 19px;
 }
 
 .checkout-btn {
   background-color: #f44;
   color: white;
   border: none;
-  padding: 0.6rem 1.5rem;
+  padding: 10px 24px;
   font-size: 14px;
   border-radius: 4px;
   cursor: pointer;
