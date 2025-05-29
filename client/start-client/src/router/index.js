@@ -6,6 +6,8 @@ import Reviews from '../views/reviews/Reviews.vue'
 import Events from '../views/events/Events.vue'
 import Subscription from '../views/sub/Subscription.vue'
 import Member from '../views/member/Member.vue'
+import Cart from '../views/cart/Cart.vue'
+
 
 const routes = [
   { path: '/', component: Home },
@@ -14,6 +16,7 @@ const routes = [
   { path: '/events', component: Events },
   { path: '/subscription', component: Subscription },
   { path: '/member', component: Member },
+  { path: '/cart', component: Cart },
 ]
 
 const router = createRouter({
