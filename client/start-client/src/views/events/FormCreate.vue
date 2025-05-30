@@ -9,6 +9,7 @@ const eventName = ref('')
 const eventLocation = ref('')
 const eventDate = ref('')
 const eventTime = ref('')
+const eventPeople = ref('')
 const eventHashtags = ref([])
 
 function handleSubmit() {
@@ -41,6 +42,10 @@ function handleSubmit() {
           <div class="form-row">
             <label for="event-time">活動時間</label>
             <input type="time" id="event-time" v-model="eventTime" />
+          </div>
+          <div class="form-row">
+            <label for="event-time">參加人數</label>
+            <input type="number" id="event-people" v-model="eventPeople" min="1" step="1" max="30"/>
           </div>
           <Hashtag v-model="eventHashtags" />
         </div>
