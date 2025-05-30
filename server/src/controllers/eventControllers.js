@@ -9,7 +9,6 @@ const flake = new FlakeId({ id: 1 });
 const createEvent = async (req, res) => {
   const id = intformat(flake.next(), 'dec');
   const now = new Date();
-
   const newEvent = {
     id,
     name: req.body.name,
@@ -99,7 +98,8 @@ const updateEvent = async( req, res) => {
     if( !event ){
       return res.status(404).json({ message: '找不到活動'})
     }
-
+    const now = new Date()
+    console.log(now)
     const updatedData = {
       name: req.body.name,
       barName: req.body.barName,
