@@ -68,7 +68,7 @@ function handleCancel() {
 
 .form-header{
   width: 140px;
-  height: 45px;
+  height: 55px;
   text-align: center;
   align-items: center;
   margin: 0 auto;
@@ -92,7 +92,7 @@ function handleCancel() {
   justify-content: center;
   align-items: center;
   width: 100%;
-  height: 250px;
+  height: 300px;
   font-size: 20px;
   color:#b1b1b1;
   border-radius: 20px 20px 0 0;
@@ -133,12 +133,13 @@ function handleCancel() {
   font-size: 20px;
   text-align: center;
 }
-.form-row input,textarea {
-  height: 30px;
-  padding: 5px;
+.form-row input {
+  height: 40px;
+  padding: 0 10px;
   font-size: 18px;
   border: 3px solid #b9b9b9;
   border-radius: 15px;
+  background-color: white;
 }
 
 .form-bottom{

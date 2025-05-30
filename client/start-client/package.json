@@ -19,9 +19,6 @@
     "vue-router": "^4.5.0"
   },
   "devDependencies": {
-<<<<<<< HEAD
-    "@vitejs/plugin-vue": "^5.2.3",
-=======
     "@eslint/js": "^9.22.0",
     "@tailwindcss/postcss": "^4.1.8",
     "@vitejs/plugin-vue": "^5.2.3",
@@ -31,7 +28,6 @@
     "eslint-plugin-vue": "~10.0.0",
     "globals": "^16.0.0",
     "postcss": "^8.5.3",
->>>>>>> origin/dev
     "prettier": "3.5.3",
     "tailwindcss": "^4.1.8",
     "vite": "^6.2.4",

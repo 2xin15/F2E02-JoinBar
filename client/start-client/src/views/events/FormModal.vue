@@ -116,7 +116,7 @@ function handleDelete() {
 
 .popup-close-btn {
   position: absolute;
-  top: 60px;
+  top: 50px;
   right: 15px;
   font-size: 30px;
   background: none;
