@@ -23,7 +23,6 @@
   align-items: center;
   padding: 1rem 2rem;
   background-color: #bbbbbb;
-  color: white;
   height: 100px;
 }
 
@@ -39,7 +38,7 @@
 }
 
 .nav-links a {
-  color: var(--color-black);
+  color: white;
   text-decoration: none;
 }
 </style>
