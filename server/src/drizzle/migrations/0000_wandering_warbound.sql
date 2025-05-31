@@ -4,10 +4,10 @@ CREATE TABLE "users" (
 	"nickname" varchar(100),
 	"email" varchar(100),
 	"password" varchar(100),
-	"role" varchar(30) DEFAULT 'user',
+	"role" varchar(20) DEFAULT 'user',
 	"birthday" date,
 	"is_verified_email" boolean DEFAULT false,
-	"provider_type" varchar(30),
+	"provider_type" varchar(20),
 	"provider_id" varchar(100),
 	"avatar_url" varchar(255),
 	"avatar_key" varchar(255),
@@ -21,7 +21,7 @@ CREATE TABLE "users" (
 CREATE TABLE "user_notification" (
 	"id" serial PRIMARY KEY NOT NULL,
 	"user_id" integer NOT NULL,
-	"notification_type" varchar NOT NULL,
+	"notification_type" varchar(20) NOT NULL,
 	"content" text NOT NULL,
 	"is_read" boolean DEFAULT false,
 	"created_at" timestamp DEFAULT now()
@@ -36,9 +36,9 @@ CREATE TABLE "user_bar_collection" (
 	CONSTRAINT "user_bar_collection_user_id_bar_id_unique" UNIQUE("user_id","bar_id")
 );
 --> statement-breakpoint
-CREATE TABLE "user_bar_folder" (
+CREATE TABLE "user_bar_folders" (
 	"id" serial PRIMARY KEY NOT NULL,
-	"userId" integer,
+	"user_id" integer,
 	"folder_name" varchar(50),
 	"created_at" timestamp DEFAULT now()
 );
@@ -71,21 +71,51 @@ CREATE TABLE "user_event_participation" (
 	"updated_at" timestamp DEFAULT now()
 );
 --> statement-breakpoint
-CREATE TABLE "user_event_folder" (
+CREATE TABLE "user_event_folders" (
 	"id" serial PRIMARY KEY NOT NULL,
 	"userId" integer,
 	"folder_name" varchar(50),
 	"created_at" timestamp DEFAULT now()
 );
 --> statement-breakpoint
+CREATE TABLE "events" (
+	"id" bigint PRIMARY KEY NOT NULL,
+	"name" varchar(50) NOT NULL,
+	"bar_name" varchar(100) NOT NULL,
+	"location" varchar(100) NOT NULL,
+	"start_date" timestamp NOT NULL,
+	"end_date" timestamp NOT NULL,
+	"max_people" integer,
+	"image_url" varchar(255),
+	"price" integer,
+	"host_user" integer NOT NULL,
+	"created_at" timestamp NOT NULL,
+	"modify_at" timestamp NOT NULL,
+	"status" smallint DEFAULT 1 NOT NULL
+);
+--> statement-breakpoint
+CREATE TABLE "tags" (
+	"id" serial PRIMARY KEY NOT NULL,
+	"name" varchar(50)
+);
+--> statement-breakpoint
+CREATE TABLE "event_tags" (
+	"event_id" bigint NOT NULL,
+	"tag_id" integer NOT NULL,
+	CONSTRAINT "event_tags_event_id_tag_id_pk" PRIMARY KEY("event_id","tag_id")
+);
+--> statement-breakpoint
 ALTER TABLE "user_notification" ADD CONSTRAINT "user_notification_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "user_bar_collection" ADD CONSTRAINT "user_bar_collection_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "user_bar_collection" ADD CONSTRAINT "user_bar_collection_bar_id_bars_id_fk" FOREIGN KEY ("bar_id") REFERENCES "public"."bars"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "user_bar_collection" ADD CONSTRAINT "user_bar_collection_folder_id_user_bar_folder_id_fk" FOREIGN KEY ("folder_id") REFERENCES "public"."user_bar_folder"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "user_bar_folder" ADD CONSTRAINT "user_bar_folder_userId_users_id_fk" FOREIGN KEY ("userId") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "user_bar_collection" ADD CONSTRAINT "user_bar_collection_folder_id_user_bar_folders_id_fk" FOREIGN KEY ("folder_id") REFERENCES "public"."user_bar_folders"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "user_bar_folders" ADD CONSTRAINT "user_bar_folders_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "user_event_collection" ADD CONSTRAINT "user_event_collection_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "user_event_collection" ADD CONSTRAINT "user_event_collection_event_id_events_id_fk" FOREIGN KEY ("event_id") REFERENCES "public"."events"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "user_event_collection" ADD CONSTRAINT "user_event_collection_folder_id_user_event_folder_id_fk" FOREIGN KEY ("folder_id") REFERENCES "public"."user_event_folder"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "user_event_collection" ADD CONSTRAINT "user_event_collection_folder_id_user_event_folders_id_fk" FOREIGN KEY ("folder_id") REFERENCES "public"."user_event_folders"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "user_event_participation" ADD CONSTRAINT "user_event_participation_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "user_event_participation" ADD CONSTRAINT "user_event_participation_event_id_events_id_fk" FOREIGN KEY ("event_id") REFERENCES "public"."events"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "user_event_folder" ADD CONSTRAINT "user_event_folder_userId_users_id_fk" FOREIGN KEY ("userId") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;
+ALTER TABLE "user_event_folders" ADD CONSTRAINT "user_event_folders_userId_users_id_fk" FOREIGN KEY ("userId") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "event_tags" ADD CONSTRAINT "event_tags_event_id_events_id_fk" FOREIGN KEY ("event_id") REFERENCES "public"."events"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "event_tags" ADD CONSTRAINT "event_tags_tag_id_tags_id_fk" FOREIGN KEY ("tag_id") REFERENCES "public"."tags"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+CREATE INDEX "idx_host_user" ON "events" USING btree ("host_user");
