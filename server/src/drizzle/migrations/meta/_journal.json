@@ -5,36 +5,8 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1748053814276,
-      "tag": "0000_low_sauron",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "7",
-      "when": 1748089198900,
-      "tag": "0001_funny_misty_knight",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "7",
-      "when": 1748092072495,
-      "tag": "0002_natural_thing",
-      "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "7",
-      "when": 1748443382415,
-      "tag": "0003_yellow_layla_miller",
-      "breakpoints": true
-    },
-    {
-      "idx": 4,
-      "version": "7",
-      "when": 1748443729354,
-      "tag": "0004_hot_typhoid_mary",
+      "when": 1748591033614,
+      "tag": "0000_thankful_marauders",
       "breakpoints": true
     }
   ]

@@ -3,6 +3,7 @@ const intformat = require('biguint-format');
 const db = require('../config/db');
 const { events, eventTags, tags } = require('../models/schema');
 const { eq } = require('drizzle-orm');
+const moment = require('moment-timezone');
 
 const flake = new FlakeId({ id: 1 });
 
@@ -98,8 +99,9 @@ const updateEvent = async( req, res) => {
     if( !event ){
       return res.status(404).json({ message: '找不到活動'})
     }
-    const now = new Date()
-    console.log(now)
+    // const now = new Date()
+    // console.log(now)
+    // console.log(process.env.TZ);
     const updatedData = {
       name: req.body.name,
       barName: req.body.barName,
